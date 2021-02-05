@@ -6,6 +6,12 @@ rally_cache <- new.env(parent = emptyenv())
   options(rally.key = key)
   options(rally.secret = secret)
   if(key != "" && secret != "") {
-    authenticate(key, secret)
+    cat("Found rAlly key and secret\n")
+    access_token(key, secret)
   }
+  rally_cache$con <- DBI::dbConnect(RSQLite::SQLite(), "danfoss-db.sqlite")
+}
+
+.onUnload <- function(libname) {
+  DBI::dbDisconnect(rally_cache$con)
 }

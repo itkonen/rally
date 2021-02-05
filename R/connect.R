@@ -1,31 +1,36 @@
 
-authenticate <- function(key, secret) {
+#' @import httr
+access_token <- function(key, secret) {
   app <- oauth_app("danfoss", key, secret)
   ep <- oauth_endpoint(authorize = NULL,
                        access= "oauth2/token",
                        base_url = "https://api.danfoss.com")
-  rally_cache$token <-
-    oauth2.0_token(ep, app, client_credentials = TRUE,
-                   use_basic_auth = TRUE)
+  assign("token",
+         oauth2.0_token(ep, app, client_credentials = TRUE,
+                        use_basic_auth = TRUE, cache = TRUE),
+         envir = rally_cache
+  )
 }
 
+#' @import httr
 request <- function() {
+  stopifnot(!is.null(rally_cache$token))
   g <- function() GET("https://api.danfoss.com/ally/devices",
-                      config(token =   rally_cache$token))
+                      config(token = rally_cache$token))
   tryCatch({
     stop_for_status(g(), task = "get devices")
   }, error = function(cnd) {
-    token$init_credentials()
+    rally_cache$token$init_credentials()
     g()
   })
 }
 
+#' @import purrr dplyr
 #' @importFrom magrittr `%>%`
 #' @export
 get_devices <- function() {
-  x <- request() %>% content()
-  y <-
-    x$result %>%
+  x <- request() %>% httr::content()
+  x$result %>%
     map(function(x){
       s <- x$status %>%
         map(~structure(list(.x$value), .Names = .x$code)) %>%
