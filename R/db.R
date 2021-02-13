@@ -1,4 +1,8 @@
 
+connect_db <- function(path = "danfoss-db.sqlite") {
+  rally_cache$con <- DBI::dbConnect(RSQLite::SQLite(), path)
+}
+
 #' @export
 append_db <- function(y) {
   DBI::dbWriteTable(rally_cache$con, "danfoss", y, append = TRUE)
@@ -14,16 +18,20 @@ read_db <- function() {
 }
 
 #' @export
-collector_deamon <- function() {
+collector <- function(sample_interval = 300, path = "danfoss-db.sqlite") {
+  connect_db(path)
   repeat({
-    y <- get_devices()
-    append_db(y)
-    Sys.sleep(5*60)
+    tic <- Sys.time()
+    append_db(get_devices())
+    toc <- Sys.time()
+    wait <- max(sample_interval - difftime(toc, tic, unit = "secs"), 5)
+    Sys.sleep(wait)
   })
 }
 
 #' @export
-start_collecting <- function(key, secret) {
+start_collecting <- function(key, secret, sample_interval = 300,
+                             path = "danfoss-db.sqlite") {
   access_token(key, secret)
-  collector_deamon()
+  collector(sample_interval, path)
 }
