@@ -28,17 +28,22 @@ request <- function(id = NULL) {
 #' @import purrr dplyr
 #' @importFrom magrittr `%>%`
 #' @export
-get_devices <- function(id = NULL) {
+get_devices <- function(id = NULL, name = NULL) {
   x <- httr::content(request(id))
 
   parse_result <- function(x){
-    s <-
-      x$status %>%
-      map(~structure(list(.x$value), .Names = .x$code)) %>%
-      flatten() %>%
-      as_tibble()
-    x$status <- NULL
-    bind_cols(as_tibble(x), s)
+    if(length(x$status)>0) {
+      s <-
+        x$status %>%
+        map(~structure(list(.x$value), .Names = .x$code)) %>%
+        flatten() %>%
+        as_tibble()
+      x$status <- NULL
+      bind_cols(as_tibble(x), s)
+    } else {
+      x$status <- NULL
+      as_tibble(x)
+    }
   }
 
   y <- if(is.null(id)) map(x$result, parse_result) else parse_result(x$result)
@@ -50,7 +55,8 @@ get_devices <- function(id = NULL) {
       across(c(active_time, create_time, update_time),
              ~as.POSIXct((.x), origin="1970-01-01", tz = "EET")),
       time = as.POSIXct(x$t/1000, origin = "1970-01-01", tz = "EET")) %>%
-    select(id, name, time, temp_current, temp_set, everything())
+    select(id, name, time, temp_current, temp_set, everything()) %>%
+    filter(if(is.null(!!name)) TRUE else name == !!name)
 }
 
 #' @import httr
