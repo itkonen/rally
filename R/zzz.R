@@ -6,7 +6,7 @@ rally_cache <- new.env(parent = emptyenv())
   db_path <- Sys.getenv("RALLY_DB_PATH")
   if(key != "" && secret != "") {
     cat("Found Ally key and secret\n")
-    access_token(key, secret)
+    authorize(key, secret)
   }
   if(db_path != "") connect_db(path = db_path)
 }

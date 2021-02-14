@@ -1,5 +1,11 @@
-
+#' Authorize app to use Danfoss Ally API
+#'
+#' To obtain the required key and secret, register at https://developer.danfoss.com/. A
+#'
+#' @param key, secret character strings
+#'
 #' @import httr
+#' @export
 authorize <- function(key, secret) {
   app <- oauth_app("danfoss", key, secret)
   ep <- oauth_endpoint(authorize = NULL,
@@ -15,7 +21,8 @@ request <- function(id = NULL) {
     stop("No access token found. Use `authorize(key, secret)` to set up the access.")
   }
   url <- modify_url("https://api.danfoss.com", path = c("ally/devices", id))
-  g <- function() GET(url, config(token = rally_cache$token))
+  g <- function() GET(url, config(token = rally_cache$token),
+                      user_agent("https://github.com/itkonen/rally/"))
 
   tryCatch({
     stop_for_status(g(), task = "get devices")

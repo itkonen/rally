@@ -5,6 +5,7 @@ connect_db <- function(path = "danfoss-db.sqlite") {
 
 #' @export
 append_db <- function(y) {
+  y <- filter(y, sub)
   DBI::dbWriteTable(rally_cache$con, "danfoss", y, append = TRUE)
 }
 
