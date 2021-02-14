@@ -30,8 +30,8 @@ collector <- function(sample_interval = 300, path = "danfoss-db.sqlite") {
 }
 
 #' @export
-start_collecting <- function(key, secret, sample_interval = 300,
+collector_deamon <- function(key = NULL, secret = NULL, sample_interval = 300,
                              path = "danfoss-db.sqlite") {
-  access_token(key, secret)
+  if(!is.null(key) && !is.null(secret)) access_token(key, secret)
   collector(sample_interval, path)
 }
