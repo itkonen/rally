@@ -38,33 +38,40 @@ request <- function(id = NULL) {
 get_devices <- function(id = NULL, name = NULL) {
   x <- httr::content(request(id))
 
-  parse_result <- function(x){
-    if(length(x$status)>0) {
-      s <-
-        x$status %>%
-        map(~structure(list(.x$value), .Names = .x$code)) %>%
-        flatten() %>%
-        as_tibble()
-      x$status <- NULL
-      bind_cols(as_tibble(x), s)
-    } else {
-      x$status <- NULL
-      as_tibble(x)
-    }
+  parse_result <- function(x) {
+    x$status <-
+      setNames(map(x$status, "value"), map_chr(x$status, "code"))
+    x 
   }
 
-  y <- if(is.null(id)) map(x$result, parse_result) else parse_result(x$result)
+  if(is.null(id)) {
+    y <- map(x$result, parse_result)
+  } else {
+    y <- list(parse_result(x$result))
+  }
 
-  y %>%
+  devices <-
+    map(y, ~list_modify(.x, status=NULL)) %>%
     bind_rows() %>%
     mutate(
-      across(contains("temp"), ~.x/10),
       across(c(active_time, create_time, update_time),
-             ~as.POSIXct((.x), origin="1970-01-01", tz = "EET")),
-      time = as.POSIXct(x$t/1000, origin = "1970-01-01", tz = "EET")) %>%
-    select(id, name, time, temp_current, temp_set, everything()) %>%
-    filter(if(is.null(!!name)) TRUE else name == !!name)
+             ~as.POSIXct((.x), origin="1970-01-01", tz = "EET"))
+    ) %>%
+    select(id, name, everything())
+
+  status <-
+    map(y, "status") %>%
+    setNames(devices$id) %>%
+    bind_rows(.id = "id") %>%
+    mutate(across(contains("temp"), ~.x/10)) %>%
+    select(id, temp_current, mode, battery_percentage, window_state, lower_temp, upper_temp, everything())
+
+  time <- as.POSIXct(x$t/1000, origin = "1970-01-01", tz = "EET")
+
+  list(devices = devices, status = status, time = time)
 }
+
+
 
 #' @import httr
 #' @export

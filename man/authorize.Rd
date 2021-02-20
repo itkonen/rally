@@ -10,5 +10,5 @@ authorize(key, secret)
 \item{key, }{secret character strings}
 }
 \description{
-To obtain the required key and secret, register at https://developer.danfoss.com/
+To obtain the required key and secret, register at https://developer.danfoss.com/. A
 }
