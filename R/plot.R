@@ -1,13 +1,16 @@
 #' @import dplyr
 #' @export
-plot_history <- function() {
-  y <-
-    tbl(rally_cache$con, "danfoss") %>%
-    collect() %>%
-    mutate(across(c(time, active_time, create_time, update_time),
-                  ~as.POSIXct(.x, origin = "1970-01-01", tz = "EET")))
+plot_history <- function(con = sqlite_connection()) {
+  y <- read_db(con)
   plotly::plot_ly(y, x = ~time, y = ~temp_current, color = ~name,
-                  type = "scatter", mode = "line")
+                  type = "scatter", mode = "line") %>%
+    layout(hovermode = "x unified",
+           title = list(text = "Temperature"),
+           xaxis = list(title = NA),
+           yaxis = list(title = NA,
+                        fixedrange = TRUE)) %>%
+    plotly::config(modeBarButtonsToRemove = c("zoomIn2d", "zoomOut2d"))
+
 }
 
 #' @export

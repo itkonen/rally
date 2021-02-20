@@ -33,20 +33,20 @@ read_db <- function(con = sqlite_connection()) {
 }
 
 #' @export
-collector <- function(sample_interval = 300, path = getOption("rally.db.path")) {
-  con  <-  sqlite_connection(path)
+recorder <- function(con = sqlite_connection(), sample_interval = 300) {
+  ## con  <-  sqlite_connection(path)
   repeat({
     tic <- Sys.time()
     append_db(con)
     toc <- Sys.time()
-    wait <- max(sample_interval - difftime(toc, tic, unit = "secs"), 5)
+    wait <- max(sample_interval - as.numeric(difftime(toc, tic, unit = "secs")), 5)
     Sys.sleep(wait)
   })
 }
 
 #' @export
-start_collector_daemon <- function(key = NULL, secret = NULL, sample_interval = 300,
-                             path = getOption("rally.db.path")) {
-  if(!is.null(key) && !is.null(secret)) access_token(key, secret)
-  collector(sample_interval, path)
+start_recorder_daemon <- function(key, secret, path = "danfoss-db.sqlite",
+                                  sample_interval = 300) {
+  access_token(key, secret)
+  recorder(sqlite_connection(path), sample_interval)
 }
