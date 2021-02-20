@@ -13,13 +13,14 @@ RoxygenNote: 7.1.1
 Imports: 
     httr,
     magrittr,
+    purrr,
     dplyr
 Suggests:
+    lubridate,
     RSQLite,
     DBI,
     plotly,
-    servr,
-    htmltools,
+    shiny,
     tidyr,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

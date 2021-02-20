@@ -1,5 +1,6 @@
 library(rally)
-library(tidyverse)
+library(dplyr)
+library(magrittr)
 library(shiny)
 library(plotly)
 library(lubridate)
