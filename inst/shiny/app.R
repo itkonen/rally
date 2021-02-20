@@ -8,12 +8,7 @@ ui <- fluidPage(
   titlePanel("rally"),
   sidebarLayout(
     sidebarPanel(
-      sliderInput("date_slider", label = h3("Time Range"),
-                  min = Sys.time() - days(2),
-                  max = ceiling_date(Sys.time(), unit = "hour"),
-                  value = c(Sys.time() - days(1),
-                            ceiling_date(Sys.time(), unit = "hour")),
-                  timeFormat = "%F %H:%M")
+      uiOutput("date_slider")
     ),
     mainPanel(
       plotlyOutput("temp_plot", height = "500px")
@@ -23,18 +18,25 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
 
+  con <- sqlite_connection()
+
   data <- reactive({
-    d <- read_db()
-    min_time <- floor_date(min(Sys.time() - days(1), min(d$time)), unit = "hour")
+    read_db(con)
+  })
+
+  output$date_slider <- renderUI({
+    min_time <- floor_date(min(Sys.time() - days(1), min(data()$time)), unit = "hour")
     max_time <- ceiling_date(Sys.time(), unit = "hour")
-    updateSliderInput(session, "date_slider",
-                      min = min_time, max = max_time,
-                      value = c(Sys.time() - days(1), max_time),
-                      timeFormat = "%F %H:%M")
-    d
+    sliderInput("date_slider",
+                label = h3("Time Range"),
+                min = min_time,
+                max = max_time,
+                value = max_time - days(1:0),
+                timeFormat = "%F %H:%M")
   })
 
   output$temp_plot <- renderPlotly({
+    req(input$date_slider)
     data() %>%
       filter(time <= input$date_slider[2],
              time >= input$date_slider[1]) %>%
@@ -47,4 +49,6 @@ server <- function(input, output, session) {
       plotly::config(displayModeBar = FALSE)
   })
 }
+
+shinyApp(ui = ui, server = server)
 

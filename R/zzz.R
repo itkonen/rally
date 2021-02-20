@@ -10,7 +10,7 @@ rally_cache <- new.env(parent = emptyenv())
   if(Sys.getenv("RALLY_DB_PATH") != "") {
     options(rally.db.path = Sys.getenv("RALLY_DB_PATH"))
   } else {
-    options(rally.db.path = "danfoss-db.sqlite")
+    options(rally.db.path = "rally_db.sqlite")
   }
 }
 
