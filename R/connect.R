@@ -32,16 +32,20 @@ request <- function(id = NULL) {
   })
 }
 
+#' Get device information and status
+#'
+#' @param id a string
+#'
 #' @import purrr dplyr
 #' @importFrom magrittr `%>%`
 #' @export
-get_devices <- function(id = NULL, name = NULL) {
+get_data <- function(id = NULL) {
   x <- httr::content(request(id))
 
   parse_result <- function(x) {
     x$status <-
       setNames(map(x$status, "value"), map_chr(x$status, "code"))
-    x 
+    x
   }
 
   if(is.null(id)) {
@@ -68,10 +72,24 @@ get_devices <- function(id = NULL, name = NULL) {
 
   time <- as.POSIXct(x$t/1000, origin = "1970-01-01", tz = "EET")
 
-  list(devices = devices, status = status, time = time)
+  l <- list(devices = devices, status = status, time = time)
+  class(l) <- "rally_data"
+  l
 }
 
+#' @export
+print.rally_data <- function(x, ...) {
+  glimpse(x)
+}
 
+#' @export
+devices <- function(id = NULL) {
+  x <- get_data(id)
+  full_join(x$status, x$devices, by = "id") %>%
+    mutate(time = x$time) %>%
+    select(id, name, time, everything())
+
+}
 
 #' @import httr
 #' @export
