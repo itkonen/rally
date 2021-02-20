@@ -3,12 +3,14 @@ sqlite_connection <- function(path = getOption("rally.db.path")) {
   DBI::dbConnect(RSQLite::SQLite(), path)
 }
 
+#' @importFrom DBI dbWriteTable
+#' @importFrom RSQLite dbWriteTable
 #' @export
 append_db <- function(con = sqlite_connection(), rally_data = get_data()) {
-  DBI::dbWriteTable(con, "rally_devices",
+  dbWriteTable(con, "rally_devices",
                     bind_cols(tibble(time = rally_data$time), rally_data$devices),
                     overwrite = TRUE)
-  DBI::dbWriteTable(con, "rally_status",
+  dbWriteTable(con, "rally_status",
                     bind_cols(tibble(time = rally_data$time), rally_data$status),
                     append = TRUE)
 }
@@ -34,7 +36,6 @@ read_db <- function(con = sqlite_connection()) {
 
 #' @export
 recorder <- function(con = sqlite_connection(), sample_interval = 300) {
-  ## con  <-  sqlite_connection(path)
   repeat({
     tic <- Sys.time()
     append_db(con)
