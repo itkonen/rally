@@ -36,6 +36,8 @@ request <- function(id = NULL) {
 #'
 #' @param id a string
 #'
+#' @return a list
+#'
 #' @import purrr dplyr
 #' @importFrom magrittr `%>%`
 #' @export
@@ -82,6 +84,10 @@ print.rally_data <- function(x, ...) {
   glimpse(x)
 }
 
+#' Get device and status information
+#'
+#' @return a single tibble combining device and status information
+#'
 #' @export
 devices <- function(id = NULL) {
   x <- get_data(id)
@@ -91,6 +97,8 @@ devices <- function(id = NULL) {
 
 }
 
+#' Set target temperature of a device
+#'
 #' @import httr
 #' @export
 temp_set <- function(id, temperature) {
@@ -98,6 +106,8 @@ temp_set <- function(id, temperature) {
   set_device(id, "temp_set", value)
 }
 
+#' Send commands to devices
+#'
 #' @export
 set_device <- function(id, code, value) {
   b <- jsonlite::toJSON(list(commands=list(list(code = code, value = value))),

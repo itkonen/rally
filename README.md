@@ -23,11 +23,13 @@ Authorize your app with your API key and secret:
     library(rally)
     authorize("my_key", "my_secret")
 
-To get one or all devices and their status, use `get_devices`
+To get one or all devices and their status, use `get_data`
 
-    get_devices()
-    get_devices(id = "abcd1234")
-    get_devices(name = "Dance hall 7")
+    get_data()
+    get_data(id = "abcd1234")
+
+For convenience, you can use `devices()` to get a single tibble
+containing both device and status information.
 
 Set device status with `set_device`, e.g.:
 

@@ -1,11 +1,10 @@
 Package: rally
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
+Title: R wrapper for Danfoss Ally API
+Version: 0.2.0
 Author: Juha Itkonen
 Maintainer: Juha Itkonen <itkonen.juha@gmail.com>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: Read data and command thermostat devices with the Danfoss Ally API
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
