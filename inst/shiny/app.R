@@ -41,12 +41,16 @@ server <- function(input, output, session) {
     data() %>%
       filter(time <= input$date_slider[2],
              time >= input$date_slider[1]) %>%
-      plot_ly(x = ~time, y = ~temp_current, color = ~name,
-              type = "scatter", mode = "line") %>%
-      layout(hovermode = "x unified",
-             title = list(text = "Temperature"),
-             xaxis = list(title = NA, fixedrange = TRUE),
-             yaxis = list(title = NA, fixedrange = TRUE)) %>%
+      plot_ly(x = ~time, y = ~temp_current,
+              color = ~name, text = ~name,
+              type = "scatter", mode = "line",
+              hovertemplate = '<i>%{text}:</i> %{y:.1f}<extra></extra>'
+              ) %>%
+      layout(
+        hovermode = "compare",
+        title = list(text = "Temperature"),
+        xaxis = list(title = NA, fixedrange = TRUE),
+        yaxis = list(title = NA, fixedrange = TRUE)) %>%
       plotly::config(displayModeBar = FALSE)
   })
 }
