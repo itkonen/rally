@@ -5,6 +5,8 @@ library(shiny)
 library(plotly)
 library(lubridate)
 
+con <- sqlite_connection()
+
 ui <- fluidPage(
   titlePanel("rally"),
   sidebarLayout(
@@ -18,8 +20,6 @@ ui <- fluidPage(
 )
 
 server <- function(input, output, session) {
-
-  con <- sqlite_connection()
 
   data <- reactive({
     read_db(con)

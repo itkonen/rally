@@ -7,13 +7,18 @@ sqlite_connection <- function(path = getOption("rally.db.path")) {
 #' @importFrom RSQLite dbWriteTable
 #' @export
 append_db <- function(con = sqlite_connection(), rally_data = get_data()) {
-  dbWriteTable(con, "rally_devices",
-                    bind_cols(tibble(time = rally_data$time), rally_data$devices),
-                    overwrite = TRUE)
-  dbWriteTable(con, "rally_status",
-                    bind_cols(tibble(time = rally_data$time), rally_data$status),
-                    append = TRUE)
+  rally_devices <- bind_cols(tibble(time = rally_data$time), rally_data$devices)
+  rally_status <- bind_cols(tibble(time = rally_data$time), rally_data$status)
+  if(!"SQLiteConnection" %in% class(con)) {
+    if (!all(c("rally_devices", "rally_status") %in% dbListTables(con))) {
+      copy_to(con, rally_devices, indexes = "id")
+      copy_to(con, rally_status, indexes = c("id", "time"))
+    }
+  }
+  dbWriteTable(con, "rally_devices", rally_devices, overwrite = TRUE)
+  dbWriteTable(con, "rally_status", rally_status, append = TRUE)
 }
+
 
 #' @import dplyr
 #' @export
@@ -46,8 +51,9 @@ recorder <- function(con = sqlite_connection(), sample_interval = 300) {
 }
 
 #' @export
-start_recorder_daemon <- function(key, secret, path = "danfoss-db.sqlite",
+start_recorder_daemon <- function(key, secret,
+                                  con = sqlite_connection("danfoss-db.sqlite"),
                                   sample_interval = 300) {
   access_token(key, secret)
-  recorder(sqlite_connection(path), sample_interval)
+  recorder(con, sample_interval)
 }
