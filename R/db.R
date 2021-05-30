@@ -7,8 +7,14 @@ sqlite_connection <- function(path = getOption("rally.db.path")) {
 #' @importFrom RSQLite dbWriteTable
 #' @export
 append_db <- function(con = sqlite_connection(), rally_data = get_data()) {
-  rally_devices <- bind_cols(tibble(time = rally_data$time), rally_data$devices)
-  rally_status <- bind_cols(tibble(time = rally_data$time), rally_data$status)
+  rally_devices <-
+    rally_data$devices %>%
+    mutate(time = rally_data$time) %>%
+    select(time, everything())
+  rally_status <-
+    rally_data$status %>%
+    mutate(time = rally_data$time) %>%
+    select(time, everything())
   if(!"SQLiteConnection" %in% class(con)) {
     if (!all(c("rally_devices", "rally_status") %in% dbListTables(con))) {
       copy_to(con, rally_devices, indexes = "id")
@@ -34,7 +40,7 @@ read_db <- function(con = sqlite_connection()) {
     r <-
       collect(r) %>%
       mutate(across(c(time, active_time, create_time, update_time),
-                    ~as.POSIXct(.x, origin = "1970-01-01", tz = "EET")))
+                    ~as.POSIXct(.x, origin = "1970-01-01")))
   }
   r
 }

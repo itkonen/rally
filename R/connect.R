@@ -32,7 +32,7 @@ request <- function(id = NULL) {
   })
 }
 
-#' Get device information and status
+#' Get device information and status from Danfoss Ally API
 #'
 #' @param id a string
 #'
@@ -61,7 +61,7 @@ get_data <- function(id = NULL) {
     bind_rows() %>%
     mutate(
       across(c(active_time, create_time, update_time),
-             ~as.POSIXct((.x), origin="1970-01-01", tz = "EET"))
+             ~as.POSIXct((.x), origin="1970-01-01"))
     ) %>%
     select(id, name, everything())
 
@@ -72,17 +72,17 @@ get_data <- function(id = NULL) {
     mutate(across(contains("temp"), ~.x/10)) %>%
     select(id, temp_current, mode, battery_percentage, window_state, lower_temp, upper_temp, everything())
 
-  time <- as.POSIXct(x$t/1000, origin = "1970-01-01", tz = "EET")
+  time <- as.POSIXct(x$t/1000, origin = "1970-01-01")
 
   l <- list(devices = devices, status = status, time = time)
   class(l) <- "rally_data"
   l
 }
 
-#' @export
-print.rally_data <- function(x, ...) {
-  glimpse(x)
-}
+## #' @export
+## print.rally_data <- function(x, ...) {
+##   glimpse(x)
+## }
 
 #' Get device and status information
 #'
