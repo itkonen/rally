@@ -2,7 +2,7 @@
 % Please edit documentation in R/connect.R
 \name{get_data}
 \alias{get_data}
-\title{Get device information and status}
+\title{Get device information and status from Danfoss Ally API}
 \usage{
 get_data(id = NULL)
 }
@@ -13,5 +13,5 @@ get_data(id = NULL)
 a list
 }
 \description{
-Get device information and status
+Get device information and status from Danfoss Ally API
 }
