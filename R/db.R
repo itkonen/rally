@@ -47,9 +47,10 @@ read_db <- function(con = sqlite_connection()) {
 
 #' @export
 recorder <- function(con = sqlite_connection(), sample_interval = 300) {
+  timestamp()
   repeat({
     tic <- Sys.time()
-    append_db(con)
+    try(append_db(con))
     toc <- Sys.time()
     wait <- max(sample_interval - as.numeric(difftime(toc, tic, unit = "secs")), 5)
     Sys.sleep(wait)
@@ -60,6 +61,6 @@ recorder <- function(con = sqlite_connection(), sample_interval = 300) {
 start_recorder_daemon <- function(key, secret,
                                   con = sqlite_connection("danfoss-db.sqlite"),
                                   sample_interval = 300) {
-  access_token(key, secret)
+  authorize(key, secret)
   recorder(con, sample_interval)
 }
