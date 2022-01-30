@@ -7,19 +7,21 @@ library(lubridate)
 
 con <- sqlite_connection()
 
-ui <- fluidPage(
-  titlePanel("rally"),
-  sidebarLayout(
-    sidebarPanel(
-      uiOutput("date_slider")
-    ),
-    mainPanel(
-      plotlyOutput("temp_plot", height = "500px")
+shiny_ui <- function(request) {
+  fluidPage(
+    titlePanel("rally"),
+    sidebarLayout(
+      sidebarPanel(
+        uiOutput("date_slider")
+      ),
+      mainPanel(
+        plotlyOutput("temp_plot", height = "500px")
+      )
     )
   )
-)
+}
 
-server <- function(input, output, session) {
+shiny_server <- function(input, output, session) {
 
   data <- reactive({
     read_db(con)
