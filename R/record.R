@@ -24,3 +24,16 @@ record <- function(con) {
     })
   invisible(NULL)
 }
+
+#' @export
+start_recorder <- function(path = "rally_db.duckdb", sample_interval = 300) {
+  con <- dbConnect(duckdb::duckdb(), dbdir = path)
+  timestamp()
+  repeat({
+    tic <- Sys.time()
+    try(record(con))
+    toc <- Sys.time()
+    wait <- max(sample_interval - as.numeric(difftime(toc, tic, unit = "secs")), 5)
+    Sys.sleep(wait)
+  })
+}
