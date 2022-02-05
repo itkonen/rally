@@ -44,7 +44,7 @@ parse_result <- function(x) {
     map(x$status, "value") |>
     setNames(map_chr(x$status, "code")) |>
     imap(~{
-      if (grepl("(temp|humidity)", .x)) .x/10 else .x
+      if (grepl("(temp|humidity)", .y)) .x/10 else .x
     }) |>
     list()
   x
