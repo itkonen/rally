@@ -7,12 +7,14 @@
 #' @import purrr dplyr
 #' @export
 get_devices <- function(id = NULL) {
-  url <- httr::modify_url("https://api.danfoss.com", path = c("ally/devices", id))
-  r <- httr::GET(url,
-                 httr::add_headers(Authorization = paste("Bearer", token())),
-                 httr::user_agent("https://github.com/itkonen/rally/"),
-                 httr::accept("application/json")
-                 )
+  r <-
+    httr::GET(
+      "https://api.danfoss.com",
+      path = c("ally/devices", id),
+      httr::add_headers(Authorization = paste("Bearer", token())),
+      httr::user_agent("https://github.com/itkonen/rally/"),
+      httr::accept("application/json")
+    )
 
   httr::stop_for_status(r, task = "get devices")
 
@@ -25,7 +27,7 @@ get_devices <- function(id = NULL) {
     map_dfr(x$result, parse_result) |>
     mutate(
       across(c(active_time, create_time, update_time),
-             ~as.POSIXct((.x), origin="1970-01-01"))
+             ~as.POSIXct(.x, origin = "1970-01-01"))
     ) |>
     relocate(id, name)
 
