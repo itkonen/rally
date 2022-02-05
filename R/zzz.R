@@ -1,4 +1,4 @@
-rally_cache <- new.env(parent = emptyenv())
+## rally_cache <- new.env(parent = emptyenv())
 
 .onLoad <- function(libname, pkgname) {
   key <- Sys.getenv("RALLY_KEY")
@@ -14,6 +14,6 @@ rally_cache <- new.env(parent = emptyenv())
   }
 }
 
-.onUnload <- function(libname) {
-  if(!is.null(rally_cache$con)) DBI::dbDisconnect(rally_cache$con)
-}
+## .onUnload <- function(libname) {
+##   if(!is.null(rally_cache$con)) DBI::dbDisconnect(rally_cache$con)
+## }

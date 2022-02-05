@@ -1,32 +1,46 @@
+#' @import DBI
+#' @import RSQLite
 #' @export
-record <- function(con) {
+record <- function(con = sqlite_connection()) {
 
-  d <- get_devices()
+  rally_data <- get_devices()
 
   devices <-
-    d$devices |>
+    rally_data$devices |>
     select(-status)
 
+  if (!"devices" %in% dbListTables(con)) {
+    on.exit({
+      dbExecute(con, "CREATE INDEX index_id ON devices (id)")
+    }, add = TRUE)
+  }
   dbWriteTable(con, "devices", devices, overwrite = TRUE)
 
-  status <-
-    d$devices |>
-    filter(device_type %in% c("Danfoss Ally™ Room Sensor",
-                              "Danfoss Ally™ Radiator Thermostat")) |>
+  rally_data$devices |>
+    filter(sub, online) |>
     select(id, status, device_type) |>
-    mutate(time = d$time)
-
-  status |>
     group_by(device_type) |>
-    group_map(~{
-      x <- tidyr::unnest(.x, status)
-      dbWriteTable(con, .y$device_type, x, append = TRUE)
+    group_walk(~{
+      d <-
+        tidyr::unnest_wider(.x, status) |>
+        mutate(time = rally_data$time) |>
+        relocate(id, time)
+      name <- switch(.y$device_type,
+                     "Danfoss Ally™ Room Sensor" = "room_sensor",
+                     "Danfoss Ally™ Radiator Thermostat" = "radiator_thermostat")
+      if (!name %in% dbListTables(con)) {
+        on.exit({
+          dbExecute(con, glue::glue("CREATE INDEX index_{name}_id ON {name} (id)"))
+          dbExecute(con, glue::glue("CREATE INDEX index_{name}_time ON {name} (time)"))
+        }, add = TRUE)
+      }
+      dbWriteTable(con, name, d, append = TRUE)
     })
   invisible(NULL)
 }
 
 #' @export
-start_recorder <- function(path = "rally_db.duckdb", sample_interval = 300) {
+start_recorder <- function(path = getOption("rally.db.path"), sample_interval = 300) {
   con <- dbConnect(duckdb::duckdb(), dbdir = path)
   timestamp()
   repeat({
@@ -37,3 +51,12 @@ start_recorder <- function(path = "rally_db.duckdb", sample_interval = 300) {
     Sys.sleep(wait)
   })
 }
+
+
+## #' @export
+## start_recorder_daemon <- function(key, secret,
+##                                   con = sqlite_connection("danfoss-db.sqlite"),
+##                                   sample_interval = 300) {
+##   set_credentials(key, secret)
+##   recorder(con, sample_interval)
+## }

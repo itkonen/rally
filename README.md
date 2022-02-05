@@ -21,12 +21,15 @@ uses an OAuth 2.0 client credentials grant to give access to your data.
 Authorize your app with your API key and secret:
 
     library(rally)
-    authorize("my_key", "my_secret")
+    set_credentials("my_key", "my_secret")
 
-To get one or all devices and their status, use `get_data`
+Alternatively, you can use the environmental variables `RALLY_KEY` and
+`RALLY_SECRET`.
 
-    get_data()
-    get_data(id = "abcd1234")
+To get one or all devices and their status, use `get_devices`
+
+    get_devices()
+    get_devices(id = "abcd1234")
 
 For convenience, you can use `devices()` to get a single tibble
 containing both device and status information.
@@ -38,3 +41,5 @@ Set device status with `set_device`, e.g.:
 or use the shorthand wrapper:
 
     temp_set(id = "abcd1234", 20.0)
+
+## Record data

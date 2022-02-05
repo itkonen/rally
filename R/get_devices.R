@@ -27,11 +27,11 @@ get_devices <- function(id = NULL) {
     map_dfr(x$result, parse_result) |>
     mutate(
       across(c(active_time, create_time, update_time),
-             ~as.POSIXct(.x, origin = "1970-01-01"))
+             ~as.POSIXct(.x, origin = "1970-01-01"), tz = "UTC")
     ) |>
     relocate(id, name)
 
-  time <- as.POSIXct(x$t/1000, origin = "1970-01-01")
+  time <- as.POSIXct(x$t/1000, origin = "1970-01-01", tz = "UTC")
 
   l <- list(devices = devices,
             time = time)
@@ -41,9 +41,11 @@ get_devices <- function(id = NULL) {
 
 parse_result <- function(x) {
   x$status <-
-    setNames(map(x$status, "value"), map_chr(x$status, "code")) |>
-    as_tibble() |>
-    mutate(across(contains(c("temp", "humidity")), ~.x/10)) |>
+    map(x$status, "value") |>
+    setNames(map_chr(x$status, "code")) |>
+    imap(~{
+      if (grepl("(temp|humidity)", .x)) .x/10 else .x
+    }) |>
     list()
   x
 }

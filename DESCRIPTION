@@ -1,25 +1,26 @@
 Package: rally
 Type: Package
 Title: R wrapper for Danfoss Ally API
-Version: 0.2.0
+Version: 0.3.0
 Author: Juha Itkonen
 Maintainer: Juha Itkonen <itkonen.juha@gmail.com>
 Description: Read data and command thermostat devices with the Danfoss Ally API
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Imports: 
     httr,
     magrittr,
     purrr,
-    dplyr
-Suggests:
-    lubridate,
+    dplyr,
     RSQLite,
     DBI,
+    glue,
+    tidyr
+Suggests:
+    lubridate,
     plotly,
     shiny,
-    tidyr,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
