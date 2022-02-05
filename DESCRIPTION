@@ -17,7 +17,8 @@ Imports:
     RSQLite,
     DBI,
     glue,
-    tidyr
+    tidyr,
+    hms
 Suggests:
     lubridate,
     plotly,
