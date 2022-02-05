@@ -40,8 +40,7 @@ record <- function(con = sqlite_connection()) {
 }
 
 #' @export
-start_recorder <- function(path = getOption("rally.db.path"), sample_interval = 300) {
-  con <- dbConnect(duckdb::duckdb(), dbdir = path)
+start_recorder <- function(con = sqlite_connection(), sample_interval = 300) {
   timestamp()
   repeat({
     tic <- Sys.time()
